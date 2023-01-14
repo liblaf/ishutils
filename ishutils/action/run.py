@@ -1,7 +1,7 @@
 import shlex
 import subprocess
 
-from .log import Action, get_logger
+from ..log import Action, get_logger
 
 
 def run(*args: str) -> subprocess.CompletedProcess:

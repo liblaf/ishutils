@@ -21,6 +21,7 @@ class Action(Enum):
     DOWNLOAD = "DOWNLOAD"
     EXTRACT = "EXTRACT"
     MOVE = "MOVE"
+    REMOVE = "REMOVE"
     RUN = "RUN"
 
 
@@ -85,7 +86,7 @@ class Logger(logging.Logger):
 
 def install(
     format: str = "%(message)s",
-    level: int | str = logging.NOTSET,
+    level: int | str = logging.INFO,
     console: Optional[Console] = None,
     keywords: Optional[list[str]] = [e.value + " " for e in Action],
 ) -> None:

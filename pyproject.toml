@@ -23,7 +23,9 @@ repository = "https://github.com/liblaf/ishutils"
 version = "0.0.1"
 
 [tool.poetry.dependencies]
+httpie = "^3.2.1"
 python = "^3.10"
+questionary = "^1.10.0"
 rich = "^13.0.1"
 
 [tool.poetry.group.dev.dependencies]

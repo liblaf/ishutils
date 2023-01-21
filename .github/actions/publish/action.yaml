@@ -3,8 +3,12 @@ description: Publish Python Package to PyPI
 
 inputs:
   pypi_token:
-    description: "PyPI Token"
+    description: PyPI Token
     required: true
+  python-version:
+    description: Python Version
+    required: false
+    default: "3.11"
 
 runs:
   using: composite
@@ -13,4 +17,5 @@ runs:
       name: Build and Publish to PyPI
       uses: JRubics/poetry-publish@v1.13
       with:
+        python_version: ${{ inputs.python-version }}
         pypi_token: ${{ inputs.pypi_token }}

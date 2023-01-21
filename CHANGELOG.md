@@ -1,3 +1,9 @@
+## 0.1.0 (2023-01-21)
+
+### Feat
+
+- improve confirm utility
+
 ## 0.0.3 (2023-01-14)
 
 ### Fix

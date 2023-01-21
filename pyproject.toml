@@ -5,7 +5,7 @@ requires = ["poetry-core"]
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "$version"
-version = "0.0.3"
+version = "0.1.0"
 version_files = ["ishutils/__init__.py:__version__", "pyproject.toml:version"]
 
 [tool.isort]
@@ -20,7 +20,7 @@ license = "MIT"
 name = "ishutils"
 readme = "README.md"
 repository = "https://github.com/liblaf/ishutils"
-version = "0.0.3"
+version = "0.1.0"
 
 [tool.poetry.dependencies]
 httpie = "^3.2.1"

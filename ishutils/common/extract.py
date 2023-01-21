@@ -4,10 +4,15 @@ from pathlib import Path
 from stat import S_IRWXG, S_IRWXO, S_IRWXU
 from zipfile import ZipFile, ZipInfo
 
-from ..log import Action, get_logger
-from .confirm import confirm as _confirm
+from ..logging import Logger, get_logger
+from ..utils.text import format_message
+from . import ActionType
+from .confirm import ConfirmType, confirm
+
+__all__: list[str] = ["extract"]
 
 
+# https://stackoverflow.com/questions/39296101/python-zipfile-removes-execute-permissions-from-binaries
 class MyZipFile(ZipFile):
     def _extract_member(self, member: str | ZipInfo, target_path: str, pwd: str) -> str:
         if isinstance(member, ZipInfo):
@@ -33,17 +38,25 @@ shutil.register_unpack_format(name="zip", extensions=[".zip"], function=unzip)
 def extract(
     src: str | Path,
     dst: str | Path = Path.cwd(),
-    confirm: bool = True,
-    overwrite: bool = True,
+    confirm_type: ConfirmType = ConfirmType.DEFAULT,
+    default: bool = True,
 ) -> None:
-    logger = get_logger()
+    logger: Logger = get_logger()
+    message: str = format_message(
+        action=ActionType.EXTRACT, src=src, dst=dst, markup=True
+    )
+    if not confirm(
+        default=default,
+        confirm_type=confirm_type,
+        action=ActionType.EXTRACT,
+        src=src,
+        dst=dst,
+    ):
+        logger.skipped(message=message)
+        return
+
     dst = Path(dst)
-    if dst.exists():
-        if confirm:
-            overwrite = _confirm(message=f"Extract: overwrite {dst}", default=overwrite)
-        if not overwrite:
-            logger.skipped(action=Action.EXTRACT, message=f"{src} -> {dst}")
-            return
     os.makedirs(name=dst.parent, exist_ok=True)
     shutil.unpack_archive(filename=src, extract_dir=dst)
-    logger.success(action=Action.EXTRACT, message=f"{src} -> {dst}")
+
+    logger.success(message=message)

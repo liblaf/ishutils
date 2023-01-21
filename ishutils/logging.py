@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 from typing import Optional, cast
 
 from rich.console import Console
@@ -7,7 +6,12 @@ from rich.logging import RichHandler
 from rich.style import Style
 from rich.theme import Theme
 
-NAME: str = __package__ or "ishutils"
+from .common import ActionType, Status
+
+__all__: list[str] = ["Logger", "install", "get_logger"]
+
+
+NAME: str = "ishutils"
 
 
 FAILURE: int = logging.ERROR + 1
@@ -16,70 +20,37 @@ SKIPPED: int = logging.INFO + 2
 SUCCESS: int = logging.INFO + 3
 
 
-class Action(Enum):
-    COPY = "COPY"
-    DOWNLOAD = "DOWNLOAD"
-    EXTRACT = "EXTRACT"
-    MOVE = "MOVE"
-    REMOVE = "REMOVE"
-    RUN = "RUN"
-
-
-class Status(Enum):
-    FAILURE = "FAILURE"
-    RUNNING = "RUNNING"
-    SKIPPED = "SKIPPED"
-    SUCCESS = "SUCCESS"
-
-
 class Logger(logging.Logger):
-    def format_message(
-        self, action: str | Action, status: str | Status, message: str
-    ) -> str:
-        if isinstance(action, Action):
-            action = action.value
-        action = str(action).ljust(8)
-
-        if isinstance(status, Status):
-            status = status.value
+    def format_message(self, status: str | Status, message: str) -> str:
         status = str(status)
         style: str = f"logging.level.{status.lower()}"
+        return f"[{style}]" + message
 
-        return f"[{style}]" + action + " " + message
-
-    def failure(self, action: str | Action, message: str) -> None:
+    def failure(self, message: str) -> None:
         self.log(
             level=FAILURE,
-            msg=self.format_message(
-                action=action, status=Status.FAILURE, message=message
-            ),
+            msg=self.format_message(status=Status.FAILURE, message=message),
             stacklevel=2,
         )
 
-    def running(self, action: str | Action, message: str) -> None:
+    def running(self, message: str) -> None:
         self.log(
             level=RUNNING,
-            msg=self.format_message(
-                action=action, status=Status.RUNNING, message=message
-            ),
+            msg=self.format_message(status=Status.RUNNING, message=message),
             stacklevel=2,
         )
 
-    def skipped(self, action: str | Action, message: str) -> None:
+    def skipped(self, message: str) -> None:
         self.log(
             level=SKIPPED,
-            msg=self.format_message(
-                action=action, status=Status.SKIPPED, message=message
-            ),
+            msg=self.format_message(status=Status.SKIPPED, message=message),
             stacklevel=2,
         )
 
-    def success(self, action: str | Action, message: str) -> None:
+    def success(self, message: str) -> None:
         self.log(
             level=SUCCESS,
-            msg=self.format_message(
-                action=action, status=Status.SUCCESS, message=message
-            ),
+            msg=self.format_message(status=Status.SUCCESS, message=message),
             stacklevel=2,
         )
 
@@ -88,7 +59,7 @@ def install(
     format: str = "%(message)s",
     level: int | str = logging.INFO,
     console: Optional[Console] = None,
-    keywords: Optional[list[str]] = [e.value + " " for e in Action],
+    keywords: Optional[list[str]] = [e.value + " " for e in ActionType],
 ) -> None:
     logging.addLevelName(level=FAILURE, levelName="FAILURE")
     logging.addLevelName(level=RUNNING, levelName="RUNNING")
@@ -122,7 +93,7 @@ def get_logger(name: Optional[str] = NAME) -> Logger:
 if __name__ == "__main__":
     install()
     logger = get_logger()
-    logger.failure(action="Action", message="Message")
-    logger.running(action="Action", message="Message")
-    logger.skipped(action="Action", message="Message")
-    logger.success(action="Action", message="Message")
+    logger.failure(message="Message")
+    logger.running(message="Message")
+    logger.skipped(message="Message")
+    logger.success(message="Message")

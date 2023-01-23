@@ -15,7 +15,7 @@ def download(
     url: str,
     output: str | Path,
     confirm_type: ConfirmType = ConfirmType.DEFAULT,
-    default: bool = False,
+    default: bool = True,
 ) -> None:
     logger: Logger = get_logger()
     message: str = format_message(

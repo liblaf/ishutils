@@ -93,7 +93,7 @@ jobs:
       - name: Install Dependencies
         run: poetry install --no-interaction
       - name: Build Executable
-        run: bash "scripts/build.sh"
+        run: poetry run bash "scripts/build.sh"
       - if: runner.os != 'Windows'
         name: Rename Build Artifact
         run: mv dist/* "dist/$(poetry version | tr ' ' -)-${{ runner.os }}-${{ runner.arch }}-py${{ steps.python.outputs.python-version }}"

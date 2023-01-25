@@ -7,8 +7,10 @@ class ActionType(StrEnum):
     COPY = "COPY"
     DOWNLOAD = "DOWNLOAD"
     EXTRACT = "EXTRACT"
+    LINK = "LINK"
     MOVE = "MOVE"
     REMOVE = "REMOVE"
+    REPLACE = "REPLACE"
     RUN = "RUN"
 
 

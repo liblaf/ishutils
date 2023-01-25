@@ -4,6 +4,13 @@
 
 - download confirmation default
 
+## [0.2.0](https://github.com/liblaf/ishutils/compare/0.1.2...v0.2.0) (2023-01-25)
+
+### Features
+
+- **common:** add link & replace ([ceb88b2](https://github.com/liblaf/ishutils/commit/ceb88b29030b5f90716466f1937d4c8350d35a01))
+- **ubuntu:** add desktop file utils ([3df1f78](https://github.com/liblaf/ishutils/commit/3df1f789bb4818291c9ce78b96b4d86d63d2c9d1))
+
 ## 0.1.1 (2023-01-21)
 
 ### Fix

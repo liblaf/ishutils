@@ -32,6 +32,7 @@ jobs:
     name: Build & Deploy Documentation
     needs:
       - detect
+    if: needs.detect.outputs.docs == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,13 +42,9 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
           cache: poetry
       - name: Install Dependencies
         run: poetry install --with docs --no-interaction
       - name: Build & Deploy Documentation
         run: poetry run mkdocs gh-deploy --no-history
-    strategy:
-      matrix:
-        python-version:
-          - "3.11"

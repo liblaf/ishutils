@@ -28,6 +28,9 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    needs:
+      - detect
+    if: needs.detect.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

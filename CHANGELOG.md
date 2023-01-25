@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1](https://github.com/liblaf/ishutils/compare/v0.2.0...v0.2.1) (2023-01-25)
+
+### Documentation
+
+- fix changelog ([1c7e599](https://github.com/liblaf/ishutils/commit/1c7e599642aec83384ca3b7e59421901a70bd18a))
+
 ## [0.2.0](https://github.com/liblaf/ishutils/compare/0.1.2...v0.2.0) (2023-01-25)
 
 ### Features

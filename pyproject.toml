@@ -2,12 +2,6 @@
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "$version"
-version = "0.1.2"
-version_files = ["ishutils/__init__.py:__version__", "pyproject.toml:version"]
-
 [tool.isort]
 profile = "black"
 

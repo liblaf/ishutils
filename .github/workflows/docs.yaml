@@ -1,0 +1,53 @@
+name: Build & Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  detect:
+    name: Detect MkDocs Config
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.detect.outputs.docs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: detect
+        name: Detect MkDocs Config
+        run: |
+          if [[ -f "mkdocs.yaml" ]]; then
+            echo "docs=true" >> "${GITHUB_OUTPUT}"
+            echo ":heavy_check_mark: MkDocs Config Detected" >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "docs=false" >> "${GITHUB_OUTPUT}"
+            echo ":x: MkDocs Config Not Found" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+  docs:
+    name: Build & Deploy Documentation
+    needs:
+      - detect
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: poetry
+      - name: Install Dependencies
+        run: poetry install --with docs --no-interaction
+      - name: Build & Deploy Documentation
+        run: poetry run mkdocs gh-deploy --no-history
+    strategy:
+      matrix:
+        python-version:
+          - "3.11"

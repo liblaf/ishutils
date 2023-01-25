@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  detect:
+  detect-build:
     name: Detect Build Script
     runs-on: ubuntu-latest
     outputs:
@@ -29,11 +29,55 @@ jobs:
             echo ":x: Build Script Not Found" >> "${GITHUB_STEP_SUMMARY}"
           fi
 
+  detect-publish:
+    name: Detect PyPI Credential
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.detect.outputs.publish }}
+    steps:
+      - id: detect
+        name: Detect PyPI Credential
+        run: |
+          if [[ -n "${PYPI_USERNAME}" && -n "${PYPI_PASSWORD}" ]]; then
+            echo "publish=true" >> "${GITHUB_OUTPUT}"
+            echo ":heavy_check_mark: PyPI Credential Detected" >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "publish=false" >> "${GITHUB_OUTPUT}"
+            echo ":x: PyPI Credential Not Found" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+        env:
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
+  build-pkg:
+    name: Build Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Poetry
+        run: pipx install poetry
+      - id: python
+        name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: poetry
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+      - name: Build Package
+        run: poetry build --no-interaction
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: dist/*
+
   build-exe:
     name: Build Executable
     needs:
-      - detect
-    if: needs.detect.outputs.build == 'true'
+      - detect-build
+    if: needs.detect-build.outputs.build == 'true'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -69,30 +113,6 @@ jobs:
           - windows-latest
         python-version:
           - "3.11"
-
-  build-pkg:
-    name: Build Package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install Poetry
-        run: pipx install poetry
-      - id: python
-        name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: poetry
-      - name: Install Dependencies
-        run: poetry install --no-interaction
-      - name: Build Package
-        run: poetry build --no-interaction
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: package
-          path: dist/*
 
   release:
     name: Create GitHub Release
@@ -131,3 +151,25 @@ jobs:
           tag: ${{ needs.release.outputs.tag-name }}
           file_glob: true
           overwrite: true
+
+  publish:
+    name: Publish to PyPI
+    needs:
+      - detect-publish
+      - release
+    if: needs.detect-publish.outputs.publish == 'true' && needs.release.outputs.releases-created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: poetry
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+      - name: Publish to PyPI
+        run: poetry publish --username "${{ secrets.PYPI_USERNAME }}" --password "${{ secrets.PYPI_PASSWORD }}" --build --no-interaction
